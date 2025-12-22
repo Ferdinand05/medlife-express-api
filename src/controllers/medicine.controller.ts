@@ -5,6 +5,7 @@ import z from "zod";
 import { IMedicine } from "../types/medicine";
 
 // controller
+
 export async function getMedicines(req: Request, res: Response) {
   const medicines: IMedicine[] = await Medicine.find().populate("user").populate("category");
 
@@ -101,5 +102,22 @@ export async function deleteMedicine(req: Request, res: Response) {
 
   return res.status(200).json({
     success: "Data has been deleted!",
+  });
+}
+
+// get medicine by user id (user medicines)
+
+export async function getMedicinesByUser(req: Request, res: Response) {
+  const { userId } = req.params;
+
+  if (!Types.ObjectId.isValid(userId)) return res.status(400).json({ error: "Invalid user id" });
+
+  // 1 = ascending dan -1 = descending
+  const userMedicines = await Medicine.find({ user: userId }).populate("category", "name").sort({ expireDate: 1 });
+
+  if (userMedicines.length == 0) return res.status(200).json({ data: [] });
+
+  return res.status(200).json({
+    data: userMedicines,
   });
 }
