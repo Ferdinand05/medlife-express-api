@@ -18,4 +18,8 @@ const categorySchema = new Schema<ICategory>(
 
 const Category = model("Category", categorySchema);
 
+// hide
+categorySchema.path("createdAt").select(false);
+categorySchema.path("updatedAt").select(false);
+
 export default Category;

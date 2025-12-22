@@ -3,6 +3,9 @@ import User from "../models/User";
 import { IUser } from "../types/user";
 import z from "zod";
 import bcrypt from "bcrypt";
+import { Types } from "mongoose";
+import Medicine from "../models/Medicine";
+// controller
 export async function getUsers(req: Request, res: Response) {
   const users: IUser[] = await User.find();
 
@@ -37,4 +40,51 @@ export async function createUser(req: Request, res: Response) {
   } catch (err) {
     return res.status(500).json({ error: err });
   }
+}
+
+export async function updateUser(req: Request, res: Response) {
+  const { id } = req.params;
+
+  const userSchema = z.object({
+    username: z.string().min(3),
+    email: z.email(),
+    password: z.string().min(7),
+    role: z.enum(["admin", "user"]),
+  });
+
+  const parsed = userSchema.safeParse(req.body);
+
+  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid format Id." });
+
+  const { username, email, password, role } = parsed.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  try {
+    const user = await User.findByIdAndUpdate(id, { username, email, role, password: hashedPassword });
+
+    return res.status(201).json({
+      success: "Data created successfully",
+      user: user,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err });
+  }
+}
+
+export async function deleteUser(req: Request, res: Response) {
+  const { id } = req.params;
+
+  if (!Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid format Id." });
+
+  const user = await User.findById(id);
+
+  if (!user) return res.status(404).json({ error: "User not found." });
+
+  // Delete medicinenya
+  await Medicine.deleteMany({ user: id });
+  // delete user
+  await user.deleteOne();
+
+  return res.status(200).json({ success: "User and Medicines deleted successfully." });
 }
