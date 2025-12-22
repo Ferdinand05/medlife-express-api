@@ -5,7 +5,7 @@ async function startServer() {
   await connectDB();
 
   app.listen(process.env.PORT, () => {
-    console.log(`Application listening at ${process.env.PORT}`);
+    console.log(`Application listening at port${process.env.PORT}`);
   });
 }
 
