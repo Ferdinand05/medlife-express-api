@@ -26,8 +26,8 @@ export async function createUser(req: Request, res: Response) {
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
 
   const { username, email, password, role } = parsed.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
   try {
-    const hashedPassword = await bcrypt.hash(password, 24);
     const user = await User.create({ username, email, role, password: hashedPassword });
 
     return res.status(201).json({
