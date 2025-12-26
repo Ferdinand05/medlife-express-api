@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import Medicine from "../models/Medicine";
+import User from "../models/User";
 import z from "zod";
 import { IMedicine } from "../types/medicine";
 
 // controller
-
 export async function getMedicines(req: Request, res: Response) {
   const medicines: IMedicine[] = await Medicine.find().populate("user").populate("category");
 
@@ -113,11 +113,13 @@ export async function getMedicinesByUser(req: Request, res: Response) {
   if (!Types.ObjectId.isValid(userId)) return res.status(400).json({ error: "Invalid user id" });
 
   // 1 = ascending dan -1 = descending
+  const user = await User.findById(userId);
   const userMedicines = await Medicine.find({ user: userId }).populate("category", "name").sort({ expireDate: 1 });
 
   if (userMedicines.length == 0) return res.status(200).json({ data: [] });
 
   return res.status(200).json({
-    data: userMedicines,
+    user,
+    medicines: userMedicines,
   });
 }
