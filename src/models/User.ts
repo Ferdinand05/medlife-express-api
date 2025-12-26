@@ -24,10 +24,15 @@ const userSchema = new Schema(
       required: true,
       select: false,
     },
+    telepon: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true, versionKey: false }
 );
 
 const User = model("User", userSchema);
+userSchema.path("password").select(false);
 
 export default User;

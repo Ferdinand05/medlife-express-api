@@ -22,16 +22,17 @@ export async function createUser(req: Request, res: Response) {
     email: z.email(),
     password: z.string().min(7),
     role: z.enum(["admin", "user"]),
+    telepon: z.string().max(15).min(3),
   });
 
   const parsed = userSchema.safeParse(req.body);
 
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
 
-  const { username, email, password, role } = parsed.data;
+  const { username, email, password, role, telepon } = parsed.data;
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
-    const user = await User.create({ username, email, role, password: hashedPassword });
+    const user = await User.create({ username, email, role, password: hashedPassword, telepon });
 
     return res.status(201).json({
       success: "Data created successfully",
@@ -48,8 +49,9 @@ export async function updateUser(req: Request, res: Response) {
   const userSchema = z.object({
     username: z.string().min(3),
     email: z.email(),
-    password: z.string().min(7),
+    password: z.string().min(7).optional(),
     role: z.enum(["admin", "user"]),
+    telepon: z.string().max(15).min(3),
   });
 
   const parsed = userSchema.safeParse(req.body);
@@ -57,14 +59,22 @@ export async function updateUser(req: Request, res: Response) {
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
   if (!Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid format Id." });
 
-  const { username, email, password, role } = parsed.data;
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const { username, email, password, role, telepon } = parsed.data;
+
+  let hashedPassword: string | undefined;
+  if (password) {
+    hashedPassword = await bcrypt.hash(password, 10);
+  }
 
   try {
-    const user = await User.findByIdAndUpdate(id, { username, email, role, password: hashedPassword });
+    const updateData: IUser = { username, email, role, telepon };
 
-    return res.status(201).json({
-      success: "Data created successfully",
+    if (hashedPassword) updateData.password = hashedPassword;
+
+    const user = await User.findByIdAndUpdate(id, updateData, { new: true });
+
+    return res.status(200).json({
+      success: "Data updated successfully",
       user: user,
     });
   } catch (err) {
