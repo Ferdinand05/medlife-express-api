@@ -6,7 +6,7 @@ export interface IUser {
   password?: string;
   email: string;
   role: "admin" | "user";
-  telepon: string;
+  telepon?: string;
   createdAt?: string;
   updatedAt?: string;
 }
