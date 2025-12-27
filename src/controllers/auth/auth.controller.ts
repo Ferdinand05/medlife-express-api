@@ -24,8 +24,6 @@ export async function login(req: Request, res: Response) {
 
   const jwt_secret = process.env.JWT_SECRET;
 
-  if (!jwt_secret) throw Error("JWT SECRET TOKEN, is not found.");
-
   if (!user.password) return res.status(404).json({ error: "Invalid credentials" });
 
   const isMatch = await bcrypt.compare(password, user.password);
@@ -39,7 +37,7 @@ export async function login(req: Request, res: Response) {
       role: user.role,
       email: user.email,
     },
-    jwt_secret,
+    jwt_secret as string,
     {
       expiresIn: "1d",
     }
@@ -69,7 +67,15 @@ export async function register(req: Request, res: Response) {
   try {
     await User.create({ username, email, password: hashedPassword, telepon });
     return res.status(201).json({ success: "Account has been created successfully." });
-  } catch (err) {
+  } catch (err: any) {
+    if (err.code == 11000)
+      return res.status(400).json({
+        errors: {
+          error: "Duplicate Key Value",
+          keyvalue: err.keyValue,
+        },
+      });
+
     return res.status(400).json({ error: err });
   }
 }
