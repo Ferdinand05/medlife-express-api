@@ -77,7 +77,8 @@ export async function updateUser(req: Request, res: Response) {
       success: "Data updated successfully",
       user: user,
     });
-  } catch (err) {
+  } catch (err: any) {
+    if (err.code == 11000) return res.status(401).json({ error: "Duplicate Key Value", keyValue: err.keyValue });
     return res.status(500).json({ error: err });
   }
 }
