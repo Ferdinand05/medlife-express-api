@@ -25,7 +25,7 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
     next();
   } catch (err: any) {
     if (err.name == "JsonWebTokenError") return res.status(401).json({ error: "Invalid Token" });
-
+    if (err.name == "TokenExpiredError") return res.status(401).json({ error: "Token Expired" });
     return res.status(401).json({ error: err });
   }
 }
