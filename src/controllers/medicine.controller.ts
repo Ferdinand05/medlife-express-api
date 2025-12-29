@@ -85,6 +85,8 @@ export async function updateMedicine(req: Request, res: Response) {
     }
   );
 
+  if (medicine == null) return res.status(401).json({ error: "Medicine not found" });
+
   return res.status(200).json({
     success: "Data Updated successfully.",
     medicine: medicine,
