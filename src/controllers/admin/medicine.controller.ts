@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
-import Medicine from "../models/Medicine";
-import User from "../models/User";
+import Medicine from "../../models/Medicine";
+import User from "../../models/User";
 import z from "zod";
-import { IMedicine } from "../types/medicine";
+import { IMedicine } from "../../types/medicine";
 
 // controller
 export async function getMedicines(req: Request, res: Response) {
@@ -35,7 +35,9 @@ export async function createMedicine(req: Request, res: Response) {
 
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
 
-  const { name, quantity, unit, expireDate, note, user, category } = parsed.data;
+  const { name, quantity, unit, expireDate, user, note, category } = parsed.data;
+
+  if (!Types.ObjectId.isValid(user)) return res.status(400).json({ error: "User Id is not valid" });
 
   try {
     const newMedicine = await Medicine.create({ name, quantity, unit, expireDate, note, user, category });

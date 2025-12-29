@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
-import Category from "../models/Category";
-import { ICategory } from "../types/category";
+import Category from "../../models/Category";
+import { ICategory } from "../../types/category";
 import z from "zod";
 //
 export async function getCategories(req: Request, res: Response) {

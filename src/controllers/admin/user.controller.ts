@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import User from "../models/User";
-import { IUser } from "../types/user";
+import User from "../../models/User";
+import { IUser } from "../../types/user";
 import z from "zod";
 import bcrypt from "bcrypt";
 import { Types } from "mongoose";
-import Medicine from "../models/Medicine";
+import Medicine from "../../models/Medicine";
+
 // controller
 export async function getUsers(req: Request, res: Response) {
   const users: IUser[] = await User.find();
