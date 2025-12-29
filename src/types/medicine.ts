@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { IUser } from "./user";
 
 export interface IMedicine {
   _id: Types.ObjectId;
@@ -8,7 +9,7 @@ export interface IMedicine {
   reminderSent?: boolean;
   note?: string;
   unit: string;
-  user: Types.ObjectId;
+  user: Types.ObjectId | IUser;
   category: Types.ObjectId;
   createdAt?: string;
   updatedAt?: string;
