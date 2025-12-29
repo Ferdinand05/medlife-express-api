@@ -30,23 +30,27 @@ export async function login(req: Request, res: Response) {
 
   if (!isMatch) return res.status(500).json({ error: "Invalid credentials" });
 
-  const token = jwt.sign(
-    {
-      user_id: user._id,
-      username: user.username,
-      role: user.role,
-      email: user.email,
-    },
-    jwt_secret as string,
-    {
-      expiresIn: "1d",
-    }
-  );
+  try {
+    const token = jwt.sign(
+      {
+        user_id: user._id,
+        username: user.username,
+        role: user.role,
+        email: user.email,
+      },
+      jwt_secret as string,
+      {
+        expiresIn: "1d",
+      }
+    );
 
-  return res.status(200).json({
-    success: "Login Success!",
-    token,
-  });
+    return res.status(200).json({
+      success: "Login Success!",
+      token,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.name });
+  }
 }
 
 export async function register(req: Request, res: Response) {
