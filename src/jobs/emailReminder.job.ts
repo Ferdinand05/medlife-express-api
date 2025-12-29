@@ -1,0 +1,52 @@
+import cron from "node-cron";
+import { sendReminderEmail } from "../services/mail.service";
+import Medicine from "../models/Medicine";
+import { IMedicine } from "../types/medicine";
+import { IUser } from "../types/user";
+
+export async function startEmailReminderJob() {
+  cron.schedule(
+    "0 12 * * *",
+    async () => {
+      console.log("📧 Running H-7 expiry reminder job");
+
+      const now = new Date();
+
+      const start = new Date();
+      start.setDate(now.getDate() + 7);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date();
+      end.setDate(now.getDate() + 7);
+      end.setHours(23, 59, 59, 999);
+
+      const medicines = await Medicine.find({
+        expireDate: {
+          $gte: start,
+          $lte: end,
+        },
+        reminderSent: false,
+      }).populate<{ user: IUser }>("user", "email");
+
+      console.log(medicines);
+
+      for (const med of medicines) {
+        console.log("➡️ Sending email to:", {
+          email: med.user.email,
+        });
+
+        await sendReminderEmail({
+          to: med.user.email,
+          medicineName: med.name,
+          expireDate: med.expireDate,
+        });
+
+        med.reminderSent = true;
+        await med.save();
+      }
+    },
+    {
+      timezone: "Asia/Jakarta",
+    }
+  );
+}
