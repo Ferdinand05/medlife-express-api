@@ -1,12 +1,17 @@
 import { Router } from "express";
-import categoryRoutes from "./category.routes";
-import medicineRoutes from "./medicine.routes";
+
 import authRoutes from "./auth.routes";
-import userRoutes from "./user.routes";
+import adminRoutes from "./admin";
+import userRoutes from "./user";
+
 const router = Router();
 
-router.use("/categories", categoryRoutes);
-router.use("/medicines", medicineRoutes);
-router.use("/users", userRoutes);
+// admin routes
+router.use("/admin", adminRoutes);
+
+// user routes
+router.use("/user", userRoutes);
+
+// auth routes
 router.use("/", authRoutes);
 export default router;
