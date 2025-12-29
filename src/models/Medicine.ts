@@ -33,7 +33,6 @@ const medicineSchema = new Schema<IMedicine>(
     user: {
       type: Types.ObjectId,
       ref: "User",
-      required: true,
     },
     category: {
       type: Types.ObjectId,
