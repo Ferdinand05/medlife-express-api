@@ -4,6 +4,7 @@ import User from "../../models/User";
 import jwt from "jsonwebtoken";
 import { IUser } from "../../types/user";
 import bcrypt from "bcrypt";
+import { formatZodErrors } from "../../utils/formatZodError";
 
 //
 export async function login(req: Request, res: Response) {
@@ -14,7 +15,7 @@ export async function login(req: Request, res: Response) {
 
   const parsed = loginSchema.safeParse(req.body);
 
-  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!parsed.success) return res.status(400).json({ errors: formatZodErrors(parsed.error) });
 
   const { email, password } = parsed.data;
 
@@ -55,15 +56,15 @@ export async function login(req: Request, res: Response) {
 
 export async function register(req: Request, res: Response) {
   const registerSchema = z.object({
-    username: z.string().min(3),
+    username: z.string().min(3, "Username : too small, min 3 characters"),
     email: z.email(),
-    password: z.string().min(7).trim(),
-    telepon: z.string().max(15).min(3),
+    password: z.string().min(7, "Password : too small, min 7 characters").trim(),
+    telepon: z.string().max(15).min(3, "Telepon : Min 3 Character"),
   });
 
   const parsed = registerSchema.safeParse(req.body);
 
-  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!parsed.success) return res.status(400).json({ errors: formatZodErrors(parsed.error) });
   const { username, email, password, telepon } = parsed.data;
 
   const hashedPassword = await bcrypt.hash(password, 10);

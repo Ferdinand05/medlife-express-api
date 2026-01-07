@@ -5,7 +5,7 @@ import express from "express";
 import cors from "cors";
 import routes from "./routes/index";
 import morgan from "morgan";
-import { startEmailReminderJob } from "./jobs/emailReminder.job";
+import { startReminderJob } from "./jobs/medicineReminder.job";
 
 const app = express();
 app.use(morgan("dev"));
@@ -23,6 +23,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", routes);
 
 // scheduler job
-startEmailReminderJob();
+startReminderJob();
 
 export default app;

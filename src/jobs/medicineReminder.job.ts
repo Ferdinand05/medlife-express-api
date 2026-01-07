@@ -3,10 +3,11 @@ import { sendReminderEmail } from "../services/mail.service";
 import Medicine from "../models/Medicine";
 import { IMedicine } from "../types/medicine";
 import { IUser } from "../types/user";
+import { sendWhatsAppMessage } from "../services/whatsapp.service";
 
-export async function startEmailReminderJob() {
+export async function startReminderJob() {
   cron.schedule(
-    "0 12 * * *",
+    "* * * * *",
     async () => {
       console.log("📧 Running H-7 expiry reminder job");
 
@@ -26,7 +27,7 @@ export async function startEmailReminderJob() {
           $lte: end,
         },
         reminderSent: false,
-      }).populate<{ user: IUser }>("user", "email");
+      }).populate<{ user: IUser }>("user");
 
       console.log(medicines);
 
@@ -40,6 +41,9 @@ export async function startEmailReminderJob() {
           medicineName: med.name,
           expireDate: med.expireDate,
         });
+
+        const waMessage: string = `Hello ${med.user.username}, your medicine ${med.name} will expire soon!`;
+        await sendWhatsAppMessage(med.user.telepon as string, waMessage as string);
 
         med.reminderSent = true;
         await med.save();
