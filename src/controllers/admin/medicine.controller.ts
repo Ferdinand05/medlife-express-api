@@ -4,6 +4,7 @@ import Medicine from "../../models/Medicine";
 import User from "../../models/User";
 import z from "zod";
 import { IMedicine } from "../../types/medicine";
+import { formatZodErrors } from "../../utils/formatZodError";
 
 // controller
 export async function getMedicines(req: Request, res: Response) {
@@ -33,7 +34,7 @@ export async function createMedicine(req: Request, res: Response) {
 
   const parsed = medicineSchema.safeParse(req.body);
 
-  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!parsed.success) return res.status(400).json({ error: formatZodErrors(parsed.error) });
 
   const { name, quantity, unit, expireDate, user, note, category } = parsed.data;
 

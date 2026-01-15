@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import Category from "../../models/Category";
 import { ICategory } from "../../types/category";
 import z from "zod";
+import { formatZodErrors } from "../../utils/formatZodError";
 //
 export async function getCategories(req: Request, res: Response) {
   const categories: ICategory[] = await Category.find();
@@ -98,7 +99,7 @@ export async function deleteCategory(req: Request, res: Response) {
 
   const parse = validation.safeParse(req.params);
 
-  if (!parse.success) return res.status(400).json({ error: parse.error });
+  if (!parse.success) return res.status(400).json({ error: formatZodErrors(parse.error) });
 
   const { id } = parse.data;
 

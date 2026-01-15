@@ -3,6 +3,7 @@ import User from "../../models/User";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import z from "zod";
 import bcrypt from "bcrypt";
+import { formatZodErrors } from "../../utils/formatZodError";
 export async function getMe(req: AuthRequest, res: Response) {
   const userId = req.user?._id;
 
@@ -21,7 +22,7 @@ export async function changePassword(req: AuthRequest, res: Response) {
 
   const parsed = passwordSchema.safeParse(req.body);
 
-  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!parsed.success) return res.status(400).json({ error: formatZodErrors(parsed.error) });
 
   const { newPassword, oldPassword } = parsed.data;
   // compare  password
@@ -47,7 +48,7 @@ export async function updateUserInfo(req: AuthRequest, res: Response) {
 
   const parsed = userInfoSchema.safeParse(req.body);
 
-  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!parsed.success) return res.status(400).json({ error: formatZodErrors(parsed.error) });
 
   const user = await User.findByIdAndUpdate(req.user?._id, parsed.data, {
     new: true,

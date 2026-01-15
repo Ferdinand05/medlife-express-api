@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import Medicine from "../../models/Medicine";
 import z from "zod";
 import { AuthRequest } from "../../middleware/auth.middleware";
+import { formatZodErrors } from "../../utils/formatZodError";
 
 export async function getMedicines(req: AuthRequest, res: Response) {
   const userId = req.user!._id;
@@ -25,7 +26,7 @@ export async function createMedicine(req: AuthRequest, res: Response) {
   });
 
   const parsed = medicineSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!parsed.success) return res.status(400).json({ error: formatZodErrors(parsed.error) });
 
   const userId = req.user!._id;
 
@@ -56,7 +57,7 @@ export async function updateMedicine(req: AuthRequest, res: Response) {
   });
 
   const parsed = medicineSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!parsed.success) return res.status(400).json({ error: formatZodErrors(parsed.error) });
 
   // parsed.data = {
   //   name: "C1000",

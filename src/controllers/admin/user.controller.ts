@@ -5,6 +5,7 @@ import z from "zod";
 import bcrypt from "bcrypt";
 import { Types } from "mongoose";
 import Medicine from "../../models/Medicine";
+import { formatZodErrors } from "../../utils/formatZodError";
 
 // controller
 export async function getUsers(req: Request, res: Response) {
@@ -28,7 +29,7 @@ export async function createUser(req: Request, res: Response) {
 
   const parsed = userSchema.safeParse(req.body);
 
-  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!parsed.success) return res.status(400).json({ error: formatZodErrors(parsed.error) });
 
   const { username, email, password, role, telepon } = parsed.data;
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -57,7 +58,7 @@ export async function updateUser(req: Request, res: Response) {
 
   const parsed = userSchema.safeParse(req.body);
 
-  if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  if (!parsed.success) return res.status(400).json({ error: formatZodErrors(parsed.error) });
   if (!Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid format Id." });
 
   const { username, email, password, role, telepon } = parsed.data;

@@ -7,7 +7,7 @@ import { sendWhatsAppMessage } from "../services/whatsapp.service";
 
 export async function startReminderJob() {
   cron.schedule(
-    "* * * * *",
+    "* 12 * * *",
     async () => {
       console.log("📧 Running H-7 expiry reminder job");
 
