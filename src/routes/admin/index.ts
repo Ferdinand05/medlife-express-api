@@ -10,8 +10,8 @@ const router = Router();
 router.use(authMiddleware, isAdmin);
 // admin routes
 // /admin
-router.use("categories", categoryRoutes);
-router.use("medicines", medicineRoutes);
-router.use("users", userRoutes);
+router.use("/categories", categoryRoutes);
+router.use("/medicines", medicineRoutes);
+router.use("/users", userRoutes);
 
 export default router;
