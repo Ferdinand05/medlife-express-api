@@ -72,7 +72,7 @@ export async function updateCategory(req: Request, res: Response) {
       {
         new: true,
         runValidators: true,
-      }
+      },
     );
 
     if (!category) {
