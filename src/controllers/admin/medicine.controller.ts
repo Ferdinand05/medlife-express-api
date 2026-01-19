@@ -28,8 +28,8 @@ export async function createMedicine(req: Request, res: Response) {
     unit: z.enum(["tablet", "strip", "ml", "bottle"]),
     expireDate: z.coerce.date(),
     note: z.string().optional(),
-    user: z.string().length(24),
-    category: z.string().length(24),
+    user: z.string(),
+    category: z.string(),
   });
 
   const parsed = medicineSchema.safeParse(req.body);
@@ -39,6 +39,7 @@ export async function createMedicine(req: Request, res: Response) {
   const { name, quantity, unit, expireDate, user, note, category } = parsed.data;
 
   if (!Types.ObjectId.isValid(user)) return res.status(400).json({ error: "User Id is not valid" });
+  if (!Types.ObjectId.isValid(category)) return res.status(400).json({ error: "Category Id is not valid" });
 
   try {
     const newMedicine = await Medicine.create({ name, quantity, unit, expireDate, note, user, category });
