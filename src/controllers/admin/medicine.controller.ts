@@ -68,7 +68,9 @@ export async function updateMedicine(req: Request, res: Response) {
 
   const parsed = medicineSchema.safeParse(req.body);
 
-  if (!parsed.success || !Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid Id or Format data" });
+  if (!parsed.success) return res.status(400).json({ error: formatZodErrors(parsed.error) })  
+  if(!Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid Id or Format data" });
+
 
   const { name, category, quantity, unit, expireDate, user, note } = parsed.data;
 
