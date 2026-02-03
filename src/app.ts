@@ -4,24 +4,32 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import routes from "./routes/index";
-import morgan from "morgan";
+// import morgan from "morgan";
 import { startReminderJob } from "./jobs/medicineReminder.job";
+import { loggerMiddleware } from "./middleware/logger.middleware";
+import { errorLoggerMiddleware } from "./middleware/errorLogger.middleware";
 
 const app = express();
-app.use(morgan("dev"));
+// app.use(morgan("dev"));
 app.use(
   cors({
     origin: "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// logging middleware - sebelum routes jalan
+app.use(loggerMiddleware);
+
+//# routes
 app.use("/api/v1", routes);
 
+// error logging middleware - setelah routes jalan
+app.use(errorLoggerMiddleware);
 // scheduler job
 startReminderJob();
 

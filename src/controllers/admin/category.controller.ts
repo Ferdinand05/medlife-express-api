@@ -3,6 +3,8 @@ import Category from "../../models/Category";
 import { ICategory } from "../../types/category";
 import z from "zod";
 import { formatZodErrors } from "../../utils/formatZodError";
+import { Types } from "mongoose";
+import Medicine from "../../models/Medicine";
 //
 export async function getCategories(req: Request, res: Response) {
   const categories: ICategory[] = await Category.find();
@@ -21,7 +23,7 @@ export async function createCategory(req: Request, res: Response) {
 
   if (!parse.success) {
     return res.status(400).json({
-      error: parse.error,
+      error: formatZodErrors(parse.error),
     });
   }
 
@@ -44,23 +46,21 @@ export async function createCategory(req: Request, res: Response) {
 }
 
 export async function updateCategory(req: Request, res: Response) {
-  const paramsSchema = z.object({
-    id: z.string().length(24),
-  });
+  const { id } = req.params;
 
   const bodySchema = z.object({
     name: z.string().min(2),
   });
 
-  const parseParams = paramsSchema.safeParse(req.params);
+  if (!Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Category Id is not valid" });
+
   const parseBody = bodySchema.safeParse(req.body);
 
-  if (!parseParams.success || !parseBody.success) {
+  if (!parseBody.success) {
     return res.status(400).json({
-      error: "Invalid format data",
+      error: formatZodErrors(parseBody.error),
     });
   }
-  const { id } = parseParams.data;
   const { name } = parseBody.data;
 
   try {
@@ -107,7 +107,11 @@ export async function deleteCategory(req: Request, res: Response) {
 
   if (!find) return res.status(404).json({ error: "Data not found" });
 
+  // Delete the category itself
   await find.deleteOne();
+
+  // Delete all medicines associated with this category
+  await Medicine.deleteMany({ category: id });
 
   return res.status(200).json({
     message: "Data deleted successfully.",
